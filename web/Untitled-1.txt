@@ -1,0 +1,112 @@
+<0xcaa36> <name> "structureType" .
+<0xcaa3b> <name> "floorCovering" .
+<0xcaa40> <name> "unitCount" .
+<0xcaa41> <name> "HotelType" .
+<0xcaa43> <name> "width" .
+<0xcaa46> <name> "area" .
+<0xcaa54> <name> "brandName" .
+<0xcaa5a> <name> "estateType" .
+<0xcaa60> <name> "totalInvestmentValue" .
+<0xcaa67> <name> "usage" .
+<0xcaa6b> <name> "dubbleRoomCount" .
+<0xcaa6c> <name> "mortgage" .
+<0xcaa6f> <name> "interchange" .
+<0xcaa72> <name> "face" .
+<0xcaa74> <name> "address" .
+<0xcaa7b> <name> "img" .
+<0xcaa82> <name> "courseName" .
+<0xcaa84> <name> "departmentName" .
+<0xcaa88> <name> "deliveryDate" .
+<0xcaa8a> <name> "areaUsage" .
+<0xcaa8c> <name> "docType" .
+<0xcaa8f> <name> "suiteCount" .
+<0xcaa90> <name> "corporationValue" .
+<0xcaa91> <name> "Comments" .
+<0xcaa9d> <name> "marketPosition" .
+<0xcaaa2> <name> "rent" .
+<0xcaaa5> <name> "education" .
+<0xcaaa9> <name> "CV" .
+<0xcaaad> <name> "roomCount" .
+<0xcaaae> <name> "Intrest" .
+<0xcaab2> <name> "position" .
+<0xcaabc> <name> "filedOfStudy" .
+<0xcaac9> <name> "cabinets" .
+<0xcaace> <name> "singleRoomCount" .
+<0xcaacf> <name> "emDate" .
+<0xcaad0> <name> "commercialType" .
+<0xcaad4> <name> "totalInvestmentValue" .
+<0xcaadb> <name> "landArea" .
+<0xcaadc> <name> "uintPerFloorCount" .
+<0xcaadd> <name> "CorporationPower" .
+<0xcaadf> <name> "age" .
+<0xcaae0> <name> "roofType" .
+<0xcaae4> <name> "floorNumber" .
+<0xcaae8> <name> "investmentPower" .
+<0xcaaea> <name> "buildingAge" .
+<0xcaaee> <name> "advertiser" .
+<0xcaaef> <name> "gender" .
+<0xcaaf1> <name> "floorCount" .
+<0xcaaf2> <name> "OwningType" .
+<0xcaaf5> <name> "price" .
+<0xcaafb> <name> "skill" .
+
+
+
+
+
+
+
+
+
+
+    <0xcaa36> <name> "StructureType" .
+<0xcaa3b> <name> "FloorCovering" .
+<0xcaa40> <name> "UnitCount" .
+<0xcaa41> <name> "HotelType" .
+<0xcaa43> <name> "Width" .
+<0xcaa46> <name> "Area" .
+<0xcaa54> <name> "BrandName" .
+<0xcaa5a> <name> "EstateType" .
+<0xcaa60> <name> "TotalInvestmentValue" .
+<0xcaa67> <name> "Usage" .
+<0xcaa6b> <name> "DubbleRoomCount" .
+<0xcaa6c> <name> "Mortgage" .
+<0xcaa6f> <name> "Interchange" .
+<0xcaa72> <name> "Face" .
+<0xcaa74> <name> "Address" .
+<0xcaa7b> <name> "Img" .
+<0xcaa82> <name> "CourseName" .
+<0xcaa84> <name> "DepartmentName" .
+<0xcaa88> <name> "DeliveryDate" .
+<0xcaa8a> <name> "AreaUsage" .
+<0xcaa8c> <name> "DocType" .
+<0xcaa8f> <name> "SuiteCount" .
+<0xcaa90> <name> "CorporationValue" .
+<0xcaa91> <name> "Comments" .
+<0xcaa9d> <name> "MarketPosition" .
+<0xcaaa2> <name> "Rent" .
+<0xcaaa5> <name> "Education" .
+<0xcaaa9> <name> "CV" .
+<0xcaaad> <name> "RoomCount" .
+<0xcaaae> <name> "Intrest" .
+<0xcaab2> <name> "Position" .
+<0xcaabc> <name> "FiledOfStudy" .
+<0xcaac9> <name> "Cabinets" .
+<0xcaace> <name> "SingleRoomCount" .
+<0xcaacf> <name> "EmDate" .
+<0xcaad0> <name> "CommercialType" .
+<0xcaad4> <name> "TotalInvestmentValue" .
+<0xcaadb> <name> "LandArea" .
+<0xcaadc> <name> "UintPerFloorCount" .
+<0xcaadd> <name> "CorporationPower" .
+<0xcaadf> <name> "age" .
+<0xcaae0> <name> "roofType" .
+<0xcaae4> <name> "floorNumber" .
+<0xcaae8> <name> "investmentPower" .
+<0xcaaea> <name> "buildingAge" .
+<0xcaaee> <name> "advertiser" .
+<0xcaaef> <name> "gender" .
+<0xcaaf1> <name> "floorCount" .
+<0xcaaf2> <name> "OwningType" .
+<0xcaaf5> <name> "price" .
+<0xcaafb> <name> "skill" .
