@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"NCApi/datamodels"
+	"encoding/json"
 
 	"github.com/kataras/iris"
 )
@@ -12,15 +12,15 @@ type NcController struct {
 }
 
 //Get : user comment a post
-func (c *NcController) Get(ctx iris.Context) string {
-	p1 := []datamodels.Point{datamodels.Point{X: 0, Y: 0}, datamodels.Point{X: 1, Y: 1}, datamodels.Point{X: 2, Y: 0}}
+func (c *NcController) Get(ctx iris.Context) {
+	//p1 := []datamodels.Point{datamodels.Point{X: 0, Y: 0}, datamodels.Point{X: 1, Y: 1}, datamodels.Point{X: 2, Y: 0}}
 
 	// p := datamodels.Point{}
 	// p.SAdd(&p1[0])
 	// p.SAdd(&p1[1])
 	// p.SAdd(&p1[2])
-	b := datamodels.Bezier{CP: p1}
-	b.Init()
+	//b := datamodels.Bezier{CP: p1}
+	//b.Init()
 	//bp := datamodels.BernsteinPolynomial{N: 3, I: 0}
 	//bp.Init()
 
@@ -38,7 +38,24 @@ func (c *NcController) Get(ctx iris.Context) string {
 	//e4 := e3.Diff()
 	//ctx.Write(e3.JSON())
 	//ctx.Write(e4.JSON())
-	res := b.Cal(0.5)
-	ctx.Write(res.JSON())
+	//res := b.Cal(0.5)
+	//ctx.Write(res.JSON())
+	//ctx.View("index.html")
+}
+func (c *NcController) Post(ctx iris.Context) string {
+
+	type request struct {
+		CP []float64 `json:"cp"`
+	}
+	type Requeststr struct {
+		Name string
+		Last string
+	}
+	var req Requeststr
+	ctx.ReadJSON(&req)
+	js, _ := json.Marshal(req)
+	ctx.Write(js)
+	ctx.Writef("Received: %#+v\n", req)
 	return ""
+
 }
