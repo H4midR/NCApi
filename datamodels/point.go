@@ -29,6 +29,13 @@ func (p *Point) Add(p2 *Point) Point {
 	return res
 }
 
+//SAdd : add a point to itself
+func (p *Point) SAdd(p2 *Point) {
+	p.X = p.X + p2.X
+	p.Y = p.Y + p2.Y
+	p.Z = p.Z + p2.Z
+}
+
 // Move : move a point to new cordinate								Done
 func (p *Point) Move(X float64, Y float64, Z float64) {
 	p.X = X
@@ -55,6 +62,15 @@ func (p *Point) Vector() Vector {
 func (p *Point) Clone() Point {
 	vh := Point{X: p.X, Y: p.Y, Z: p.Z}
 	return vh
+}
+
+// SMultiplication : Multiplication with a number itself
+func (p *Point) Multiplication(val float64) Point {
+	return Point{
+		X: p.X * val,
+		Y: p.Y * val,
+		Z: p.Z * val,
+	}
 }
 
 // SMultiplication : Multiplication with a number itself
