@@ -2,7 +2,18 @@ package datamodels
 
 import (
 	"encoding/json"
+	"errors"
+
+	"github.com/kataras/iris"
 )
+
+// CPoints : cpoints
+type CPoints struct {
+	Curve      string  `json:"curve,omitempty"`
+	Req        string  `json:"req,omitempty"`
+	Points     []Point `json:"points,omitempty"`
+	Resolotion int     `json:"resolotion,omitempty"`
+}
 
 // Bezier : bezier struct
 type Bezier struct {
@@ -50,14 +61,19 @@ func (bp *BernsteinPolynomial) Cal(u float64) float64 {
 }
 
 //Init : Init bezier
-func (b *Bezier) Init() {
+func (b *Bezier) Init(ctx iris.Context) error {
 	b.N = uint64(len(b.CP) - 1)
+	if b.N <= 0 {
+		ctx.Writef("{\"Message\":\"control points must be more than 1\",\"status\":\"error\"}")
+		return errors.New("control points must be more than 1")
+	}
 	b.BF = make([]BernsteinPolynomial, b.N+1)
 	var i uint64
 	for i = 0; i <= b.N; i++ {
 		b.BF[i] = BernsteinPolynomial{N: b.N, I: i}
 		b.BF[i].Init()
 	}
+	return nil
 }
 
 //JSON : string json

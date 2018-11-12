@@ -40,21 +40,15 @@ func main() {
 	// Optionally, add two built'n handlers
 	// that can recover from any http-relative panics
 	// and log the requests to the terminal.
-
 	app.Use(recover.New())
 	app.Use(logger.New())
 
 	app.RegisterView(iris.HTML("./web/views", ".html"))
 
 	crs := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"*", "http://localhost:8080"}, // allows everything, use that to change the hosts.
 		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
-		AllowedHeaders:   []string{"*"},
-		Debug:            true,
 	})
-	app.Use(crs)
-	//iris.Use(crs)
 
 	mvc.New(app.Party("/nc", crs)).Handle(new(controllers.NcController))
 	//mvc.New(app.Party("/poster", crs)).Handle(new(controllers.PosterController))

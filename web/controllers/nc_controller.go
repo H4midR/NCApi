@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"NCApi/datamodels"
 	"encoding/json"
 
 	"github.com/kataras/iris"
@@ -44,18 +45,60 @@ func (c *NcController) Get(ctx iris.Context) {
 }
 func (c *NcController) Post(ctx iris.Context) string {
 
-	type request struct {
-		CP []float64 `json:"cp"`
+	type CPoints struct {
+		Curve      string             `json:"curve,omitempty"`
+		Req        string             `json:"req,omitempty"`
+		Points     []datamodels.Point `json:"points"`
+		Resolotion int                `json:"resolotion,omitempty"`
 	}
-	type Requeststr struct {
-		Name string
-		Last string
-	}
-	var req Requeststr
-	ctx.ReadJSON(&req)
-	js, _ := json.Marshal(req)
+	var cps CPoints
+	ctx.ReadJSON(&cps)
+	js, _ := json.Marshal(cps)
 	ctx.Write(js)
-	ctx.Writef("Received: %#+v\n", req)
+	//ctx.Writef("Received: %s\n", req.JSON)
 	return ""
 
+}
+
+func (c *NcController) PostPlot(ctx iris.Context) {
+	var cps datamodels.CPoints
+	ctx.ReadJSON(&cps)
+	Bezier := datamodels.Bezier{CP: cps.Points}
+	err := Bezier.Init(ctx)
+	if err != nil {
+		return
+	}
+	var step, u float64
+	step = 1
+	step = 1 / float64(cps.Resolotion)
+	u = 0
+	resPoints := make([]datamodels.Point, cps.Resolotion+1)
+	index := 0
+	for u = 0; u < 1+step; u += step {
+		resPoints[index] = Bezier.Cal(u)
+		index++
+	}
+	res, _ := json.Marshal(resPoints)
+	ctx.Write(res)
+}
+
+func (c *NcController) PostTest(ctx iris.Context) {
+
+	type Person struct {
+		Name  string `json:"Name,omitempty"`
+		Age   int    `json:"Age,omitempty"`
+		City  string `json:"City,omitempty"`
+		Other string `json:"Other,omitempty"`
+	}
+	var persons Person
+	err := ctx.ReadJSON(&persons)
+
+	if err != nil {
+		//ctx.StatusCode(iris.StatusBadRequest)
+		ctx.WriteString(err.Error())
+		return
+	}
+	str, _ := json.Marshal(persons)
+
+	ctx.Write(str)
 }

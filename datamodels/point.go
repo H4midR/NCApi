@@ -11,6 +11,11 @@ type Point struct {
 	Y float64 `json:"y"`
 	Z float64 `json:"z"`
 }
+type PointReq struct {
+	X string `json:"x"`
+	Y string `json:"y"`
+	Z string `json:"z"`
+}
 
 // JSON : convert a point to string json format						Done
 func (p *Point) JSON() []byte {
