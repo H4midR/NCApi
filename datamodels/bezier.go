@@ -17,10 +17,12 @@ type CPoints struct {
 
 // Bezier : bezier struct
 type Bezier struct {
-	CP []Point               `json:"cp"`
-	BF []BernsteinPolynomial `json:"basicFunctions"`
-	U  float64               `json:"u"`
-	N  uint64                `json:"n"`
+	CP    []Point               `json:"cp"`
+	QP    []Point               `json:"qp,omitempty"`
+	BF    []BernsteinPolynomial `json:"basicFunctions"`
+	BDifF []BernsteinPolynomial `json:"basicDiffFunctions"`
+	U     float64               `json:"u"`
+	N     uint64                `json:"n"`
 }
 
 //BernsteinPolynomial : bezier basic functions
@@ -32,6 +34,11 @@ type BernsteinPolynomial struct {
 }
 
 ///----------------------------------------------------------------helper function
+// JSON : return a string json format of polynominal
+func (b *Bezier) JSON() []byte {
+	res, _ := json.Marshal(b)
+	return res
+}
 
 //FactorialMemoization
 func Factorial(n uint64) (res uint64) {
@@ -68,17 +75,30 @@ func (b *Bezier) Init(ctx iris.Context) error {
 		return errors.New("control points must be more than 1")
 	}
 	b.BF = make([]BernsteinPolynomial, b.N+1)
+	b.QP = make([]Point, b.N)
+	b.BDifF = make([]BernsteinPolynomial, b.N)
 	var i uint64
 	for i = 0; i <= b.N; i++ {
 		b.BF[i] = BernsteinPolynomial{N: b.N, I: i}
 		b.BF[i].Init()
+
+		//		calculate Q[i]
+		if i < b.N {
+			tmp1Point := b.CP[i].Minus()
+			tmp2Point := b.CP[i+1].Add(&tmp1Point)
+			tmp2Point.SMultiplication(float64(b.N))
+			b.QP[i] = tmp2Point.Clone()
+			b.BDifF[i] = BernsteinPolynomial{N: b.N - 1, I: i}
+			b.BDifF[i].Init()
+		}
+
 	}
 	return nil
 }
 
 //JSON : string json
-func (b *BernsteinPolynomial) JSON() []byte {
-	res, _ := json.Marshal(b)
+func (bp *BernsteinPolynomial) JSON() []byte {
+	res, _ := json.Marshal(bp)
 	return res
 }
 
@@ -91,4 +111,15 @@ func (b *Bezier) Cal(u float64) Point {
 		res.SAdd(&p)
 	}
 	return res
+}
+
+//DiffCal : calculate the curve tangent vector at u
+func (b *Bezier) DiffCal(u float64) Vector {
+	var i uint64
+	res := Point{}
+	for i = 0; i < b.N; i++ {
+		p := b.QP[i].Multiplication(b.BDifF[i].Cal(u))
+		res.SAdd(&p)
+	}
+	return res.Vector()
 }

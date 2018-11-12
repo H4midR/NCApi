@@ -14,14 +14,19 @@ type NcController struct {
 
 //Get : user comment a post
 func (c *NcController) Get(ctx iris.Context) {
-	//p1 := []datamodels.Point{datamodels.Point{X: 0, Y: 0}, datamodels.Point{X: 1, Y: 1}, datamodels.Point{X: 2, Y: 0}}
+	p1 := []datamodels.Point{datamodels.Point{X: 0, Y: 0}, datamodels.Point{X: 1, Y: 1}, datamodels.Point{X: 2, Y: 0}}
 
 	// p := datamodels.Point{}
 	// p.SAdd(&p1[0])
 	// p.SAdd(&p1[1])
 	// p.SAdd(&p1[2])
-	//b := datamodels.Bezier{CP: p1}
-	//b.Init()
+	b := datamodels.Bezier{CP: p1}
+	b.Init(ctx)
+	v := b.DiffCal(1)
+	//cp := b.Cal(0.5)
+	ctx.Write(v.JSON())
+	//ctx.Writef("<br>")
+	//ctx.Write(cp.JSON())
 	//bp := datamodels.BernsteinPolynomial{N: 3, I: 0}
 	//bp.Init()
 

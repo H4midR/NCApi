@@ -11,6 +11,8 @@ type Point struct {
 	Y float64 `json:"y"`
 	Z float64 `json:"z"`
 }
+
+// PointReq : point as requset for raw data
 type PointReq struct {
 	X string `json:"x"`
 	Y string `json:"y"`
@@ -34,11 +36,21 @@ func (p *Point) Add(p2 *Point) Point {
 	return res
 }
 
-//SAdd : add a point to itself
+//SAdd : add a point to itself										Done
 func (p *Point) SAdd(p2 *Point) {
 	p.X = p.X + p2.X
 	p.Y = p.Y + p2.Y
 	p.Z = p.Z + p2.Z
+}
+
+//Minus : reverse point by Origin									Done
+func (p *Point) Minus() Point {
+	res := Point{
+		X: -1 * p.X,
+		Y: -1 * p.Y,
+		Z: -1 * p.Z,
+	}
+	return res
 }
 
 // Move : move a point to new cordinate								Done
@@ -63,13 +75,13 @@ func (p *Point) Vector() Vector {
 	return res
 }
 
-//Clone : copy the vector										Done
+//Clone : copy the vector											Done
 func (p *Point) Clone() Point {
 	vh := Point{X: p.X, Y: p.Y, Z: p.Z}
 	return vh
 }
 
-// SMultiplication : Multiplication with a number itself
+// Multiplication : Multiplication with a number itself				Done
 func (p *Point) Multiplication(val float64) Point {
 	return Point{
 		X: p.X * val,
@@ -78,7 +90,7 @@ func (p *Point) Multiplication(val float64) Point {
 	}
 }
 
-// SMultiplication : Multiplication with a number itself
+// SMultiplication : Multiplication with a number itself			Done
 func (p *Point) SMultiplication(val float64) {
 	p.X = p.X * val
 	p.Y = p.Y * val
