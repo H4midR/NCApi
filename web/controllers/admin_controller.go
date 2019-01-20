@@ -85,7 +85,8 @@ func (c *AdminController) GetMutate1() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return myg.Mutate(q)
+	str, _ := myg.Mutate(q)
+	return str
 
 }
 

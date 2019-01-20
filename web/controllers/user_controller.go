@@ -95,8 +95,8 @@ func (c *UserController) Post(ctx iris.Context) string { // must cheack uniq mob
 	}
 
 	q, _ := json.Marshal(URoot)
-
-	return myg.Mutate(q)
+	str, _ := myg.Mutate(q)
+	return str
 }
 
 //PostBy : edite user
@@ -163,7 +163,7 @@ func (c *UserController) PostBy(ctx iris.Context, uid string) string {
 				out, _ := json.Marshal(reqry)
 				ctx.WriteString(string(out[:]))
 				return "hi"
-				return myg.Mutate(out) // must return the token
+				//return myg.Mutate(out) // must return the token
 
 			} else {
 

@@ -3,6 +3,7 @@ package datamodels
 import (
 	"encoding/json"
 	"errors"
+	"math"
 
 	"github.com/kataras/iris"
 )
@@ -17,12 +18,13 @@ type CPoints struct {
 
 // Bezier : bezier struct
 type Bezier struct {
-	CP    []Point               `json:"cp"`
-	QP    []Point               `json:"qp,omitempty"`
-	BF    []BernsteinPolynomial `json:"basicFunctions"`
-	BDifF []BernsteinPolynomial `json:"basicDiffFunctions"`
-	U     float64               `json:"u"`
-	N     uint64                `json:"n"`
+	CP     []Point               `json:"cp"`
+	QP     []Point               `json:"qp,omitempty"`
+	BF     []BernsteinPolynomial `json:"basicFunctions"`
+	BDifF  []BernsteinPolynomial `json:"basicDiffFunctions"`
+	U      float64               `json:"u"`
+	N      uint64                `json:"n"`
+	Length float64               `json:"length"`
 }
 
 //BernsteinPolynomial : bezier basic functions
@@ -93,6 +95,10 @@ func (b *Bezier) Init(ctx iris.Context) error {
 		}
 
 	}
+
+	b.LengthCal(10000) // what is the best resulution for calculation of curve length? maybe it's better to be dependent on it's value or curveture 1:1000000 , 2:1000
+	//log.Printf("B length is %f", l)
+
 	return nil
 }
 
@@ -122,4 +128,17 @@ func (b *Bezier) DiffCal(u float64) Vector {
 		res.SAdd(&p)
 	}
 	return res.Vector()
+}
+
+//Length : calculate the length
+func (b *Bezier) LengthCal(n uint32) float64 {
+	var res float64
+	var i uint32
+	for i = 0; i <= n; i++ {
+		p2 := b.Cal(float64(i+1) / float64(n+1))
+		p1 := b.Cal(float64(i) / float64(n+1))
+		res += math.Sqrt(math.Pow(p2.X-p1.X, 2) + math.Pow(p2.Y-p1.Y, 2) + math.Pow(p2.Z-p1.Z, 2))
+	}
+	b.Length = res
+	return res
 }
