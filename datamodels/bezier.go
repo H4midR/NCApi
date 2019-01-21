@@ -3,6 +3,7 @@ package datamodels
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"math"
 
 	"github.com/kataras/iris"
@@ -96,8 +97,10 @@ func (b *Bezier) Init(ctx iris.Context) error {
 
 	}
 
-	b.LengthCal(10000) // what is the best resulution for calculation of curve length? maybe it's better to be dependent on it's value or curveture 1:1000000 , 2:1000
+	l := b.LengthCal(10000) // what is the best resulution for calculation of curve length? maybe it's better to be dependent on it's value or curveture 1:1000000 , 2:1000
 	//log.Printf("B length is %f", l)
+	u := 0.1
+	log.Printf("ds/du %f @ %f & lenght is %f", b.DsPDu(u, 1000), u, l)
 
 	return nil
 }
@@ -141,4 +144,12 @@ func (b *Bezier) LengthCal(n uint32) float64 {
 	}
 	b.Length = res
 	return res
+}
+
+//DsPDu : calculation of Ds/Du , @ u float64 with the calculation Resolution of n uint32
+func (b *Bezier) DsPDu(u float64, n uint32) float64 {
+	p1 := b.Cal(u - 1/float64(2*n))
+	p2 := b.Cal(u + 1/float64(2*n))
+	return math.Sqrt(math.Pow(p2.X-p1.X, 2)+math.Pow(p2.Y-p1.Y, 2)+math.Pow(p2.Z-p1.Z, 2)) * float64(n)
+
 }
