@@ -22,9 +22,10 @@ func (c *NcController) Get(ctx iris.Context) {
 	// p.SAdd(&p1[2])
 	b := datamodels.Bezier{CP: p1}
 	b.Init(ctx)
-	v := b.DiffCal(1)
+	//v := b.DiffCal(1)
 	//cp := b.Cal(0.5)
-	ctx.Write(v.JSON())
+	//ctx.Write(v.JSON())
+	b.Go()
 	//ctx.Writef("<br>")
 	//ctx.Write(cp.JSON())
 	//bp := datamodels.BernsteinPolynomial{N: 3, I: 0}
@@ -65,6 +66,7 @@ func (c *NcController) Post(ctx iris.Context) string {
 
 }
 
+//PostPlot : plot the curve
 func (c *NcController) PostPlot(ctx iris.Context) {
 	var cps datamodels.CPoints
 	ctx.ReadJSON(&cps)
@@ -85,6 +87,20 @@ func (c *NcController) PostPlot(ctx iris.Context) {
 	}
 	res, _ := json.Marshal(resPoints)
 	ctx.Write(res)
+}
+
+//PostGo : pass the curve
+func (c *NcController) PostGo(ctx iris.Context) {
+	var cps datamodels.CPoints
+	ctx.ReadJSON(&cps)
+	Bezier := datamodels.Bezier{CP: cps.Points}
+	err := Bezier.Init(ctx)
+	if err != nil {
+		return
+	}
+	Bezier.Go()
+
+	ctx.WriteString("done")
 }
 
 func (c *NcController) PostTest(ctx iris.Context) {

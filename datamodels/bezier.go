@@ -3,8 +3,11 @@ package datamodels
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"math"
+	"os"
+	"time"
 
 	"github.com/kataras/iris"
 )
@@ -54,6 +57,14 @@ func Factorial(n uint64) (res uint64) {
 	return 1
 }
 
+//check : cheack error state
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+///----------------------------------------------------------------Bernstein Polinominal
 // Init : initialize the Bernstein Polynomial
 func (bp *BernsteinPolynomial) Init() {
 	var PuCof = make([]float64, bp.N+1)
@@ -70,6 +81,7 @@ func (bp *BernsteinPolynomial) Cal(u float64) float64 {
 	return bp.Pu.Cal(u) * bp.Pui.Cal(1-u)
 }
 
+///----------------------------------------------------------------Bezier
 //Init : Init bezier
 func (b *Bezier) Init(ctx iris.Context) error {
 	b.N = uint64(len(b.CP) - 1)
@@ -152,4 +164,95 @@ func (b *Bezier) DsPDu(u float64, n uint32) float64 {
 	p2 := b.Cal(u + 1/float64(2*n))
 	return math.Sqrt(math.Pow(p2.X-p1.X, 2)+math.Pow(p2.Y-p1.Y, 2)+math.Pow(p2.Z-p1.Z, 2)) * float64(n)
 
+}
+
+//Go : Go path
+func (b *Bezier) Go() {
+	start := time.Now()
+
+	operationDone := make(chan bool)
+	var OD bool
+	var Feed float64
+	var U float64
+	var V Vector
+	U = b.U
+	Feed = 0.5
+	OD = false
+	V = b.DiffCal(U)
+	V.Unic()
+	V.SMultiplication(Feed)
+
+	log.Printf("the curve length is : %f", b.Length)
+	//X axis
+	go func() {
+		var myt time.Time
+		Filex, err := os.Create("Filex")
+		check(err)
+		defer Filex.Close()
+		var str string
+		for OD == false {
+			log.Printf("X %f , %f", V.X, U)
+			myt = time.Now()
+			elapsed := myt.Sub(start)
+			str = fmt.Sprintf("%f , %f\n", elapsed.Seconds(), V.X)
+			Filex.WriteString(str)
+
+			time.Sleep(10 * time.Millisecond)
+		}
+		operationDone <- true
+	}()
+	//Y axis
+	go func() {
+		var myt time.Time
+		Filey, err := os.Create("Filey")
+		check(err)
+		defer Filey.Close()
+		var str string
+		for OD == false {
+
+			log.Printf("Y %f , %f", V.Y, U)
+			myt = time.Now()
+			elapsed := myt.Sub(start)
+			str = fmt.Sprintf("%f , %f\n", elapsed.Seconds(), V.Y)
+			Filey.WriteString(str)
+			time.Sleep(10 * time.Millisecond)
+		}
+		operationDone <- true
+	}()
+	//Z axis
+	go func() {
+		var myt time.Time
+		Filez, err := os.Create("Filez")
+		check(err)
+		defer Filez.Close()
+		var str string
+		for OD == false {
+
+			log.Printf("Z %f , %f", V.Z, U)
+			myt = time.Now()
+			elapsed := myt.Sub(start)
+			str = fmt.Sprintf("%f , %f\n", elapsed.Seconds(), V.Z)
+			Filez.WriteString(str)
+
+			time.Sleep(10 * time.Millisecond)
+		}
+		operationDone <- true
+	}()
+
+	// Master Thread
+	go func() {
+		for U <= 1 {
+			U = U + (Feed*0.001)/b.DsPDu(U, 800)
+			V = b.DiffCal(U)
+			V.Unic()
+			V.SMultiplication(Feed)
+			time.Sleep(1 * time.Millisecond)
+		}
+		// when u == 1
+		OD = true
+	}()
+	<-operationDone
+	t := time.Now()
+	elapsed := t.Sub(start)
+	log.Printf("all jobs Done it takes %s", elapsed.String())
 }
