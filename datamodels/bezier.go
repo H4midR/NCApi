@@ -190,11 +190,12 @@ func (b *Bezier) Go() {
 		check(err)
 		defer Filex.Close()
 		var str string
+		Filex.WriteString("time(s) , Speed(mm/s) , u")
 		for OD == false {
-			log.Printf("X %f , %f", V.X, U)
+			//log.Printf("X %f , %f", V.X, U)
 			myt = time.Now()
 			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f\n", elapsed.Seconds(), V.X)
+			str = fmt.Sprintf("%f , %f , %f\n", elapsed.Seconds(), V.X, U)
 			Filex.WriteString(str)
 
 			time.Sleep(10 * time.Millisecond)
@@ -210,10 +211,10 @@ func (b *Bezier) Go() {
 		var str string
 		for OD == false {
 
-			log.Printf("Y %f , %f", V.Y, U)
+			//log.Printf("Y %f , %f", V.Y, U)
 			myt = time.Now()
 			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f\n", elapsed.Seconds(), V.Y)
+			str = fmt.Sprintf("%f , %f , %f\n", elapsed.Seconds(), V.Y, U)
 			Filey.WriteString(str)
 			time.Sleep(10 * time.Millisecond)
 		}
@@ -228,10 +229,10 @@ func (b *Bezier) Go() {
 		var str string
 		for OD == false {
 
-			log.Printf("Z %f , %f", V.Z, U)
+			//log.Printf("Z %f , %f", V.Z, U)
 			myt = time.Now()
 			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f\n", elapsed.Seconds(), V.Z)
+			str = fmt.Sprintf("%f , %f , %f\n", elapsed.Seconds(), V.Z, U)
 			Filez.WriteString(str)
 
 			time.Sleep(10 * time.Millisecond)
