@@ -175,6 +175,11 @@ func (b *Bezier) Go() {
 	var Feed float64
 	var U float64
 	var V Vector
+	Pos := Point{
+		X: 0,
+		Y: 0,
+		Z: 0,
+	}
 	U = b.U
 	Feed = 0.5
 	OD = false
@@ -186,56 +191,77 @@ func (b *Bezier) Go() {
 	//X axis
 	go func() {
 		var myt time.Time
+		var delay float64
 		Filex, err := os.Create("Filex")
 		check(err)
 		defer Filex.Close()
 		var str string
-		Filex.WriteString("time(s) , Speed(mm/s) , u")
+		Filex.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u")
 		for OD == false {
 			//log.Printf("X %f , %f", V.X, U)
 			myt = time.Now()
 			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f , %f\n", elapsed.Seconds(), V.X, U)
+			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.X, V.X, U)
 			Filex.WriteString(str)
-
-			time.Sleep(10 * time.Millisecond)
+			delay = 25000 / V.X
+			time.Sleep(time.Duration(delay) * time.Microsecond)
+			if V.X > 0 {
+				Pos.X = Pos.X + 0.025
+			} else if V.X < 0 {
+				Pos.X = Pos.X - 0.025
+			}
 		}
 		operationDone <- true
 	}()
 	//Y axis
 	go func() {
 		var myt time.Time
+		var delay float64
 		Filey, err := os.Create("Filey")
 		check(err)
 		defer Filey.Close()
 		var str string
+		Filey.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u")
 		for OD == false {
 
 			//log.Printf("Y %f , %f", V.Y, U)
 			myt = time.Now()
 			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f , %f\n", elapsed.Seconds(), V.Y, U)
+			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.Y, V.Y, U)
 			Filey.WriteString(str)
-			time.Sleep(10 * time.Millisecond)
+			delay = 25000 / V.Y
+			time.Sleep(time.Duration(delay) * time.Microsecond)
+			if V.Y > 0 {
+				Pos.Y = Pos.Y + 0.025
+			} else if V.Y < 0 {
+				Pos.Y = Pos.Y - 0.025
+			}
 		}
 		operationDone <- true
 	}()
 	//Z axis
 	go func() {
 		var myt time.Time
+		var delay float64
 		Filez, err := os.Create("Filez")
 		check(err)
 		defer Filez.Close()
 		var str string
+		Filez.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u")
 		for OD == false {
 
 			//log.Printf("Z %f , %f", V.Z, U)
 			myt = time.Now()
 			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f , %f\n", elapsed.Seconds(), V.Z, U)
+			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.Z, V.Z, U)
 			Filez.WriteString(str)
-
-			time.Sleep(10 * time.Millisecond)
+			delay = 25000 / V.Z
+			time.Sleep(time.Duration(delay) * time.Microsecond)
+			if V.Z > 0 {
+				Pos.Z = Pos.Z + 0.025
+			} else if V.Z < 0 {
+				Pos.Z = Pos.Z - 0.025
+			}
 		}
 		operationDone <- true
 	}()
@@ -253,7 +279,11 @@ func (b *Bezier) Go() {
 		OD = true
 	}()
 	<-operationDone
+	<-operationDone
+	<-operationDone
+
 	t := time.Now()
 	elapsed := t.Sub(start)
 	log.Printf("all jobs Done it takes %s", elapsed.String())
+	log.Printf("the last Point is : ( %f , %f , %f )", Pos.X, Pos.Y, Pos.Z)
 }
