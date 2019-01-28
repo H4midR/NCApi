@@ -12,6 +12,8 @@ import (
 	"github.com/kataras/iris"
 )
 
+const ZeroLimit = 0.0001
+
 // CPoints : cpoints
 type CPoints struct {
 	Curve      string  `json:"curve,omitempty"`
@@ -62,6 +64,16 @@ func Factorial(n uint64) (res uint64) {
 func check(e error) {
 	if e != nil {
 		panic(e)
+	}
+}
+
+//delayCalculation : calculate the delay time with limitation
+func delayCalculation(val float64) float64 {
+	return 2500 / val
+	if val < ZeroLimit && val > -ZeroLimit {
+		return 300
+	} else {
+		return 2500 / val
 	}
 }
 
@@ -167,6 +179,11 @@ func (b *Bezier) DsPDu(u float64, n uint32) float64 {
 
 }
 
+//errCF : error coeficent calculation factor for Velocity
+func (b *Bezier) errCF(val float64, err float64) float64 {
+	return val - 0.2*err
+}
+
 //Go : Go path
 func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	start := time.Now()
@@ -179,6 +196,16 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	var U float64
 	var V Vector
 	Pos := Point{
+		X: 0,
+		Y: 0,
+		Z: 0,
+	}
+	tPos := Point{
+		X: 0,
+		Y: 0,
+		Z: 0,
+	}
+	Err := Point{
 		X: 0,
 		Y: 0,
 		Z: 0,
@@ -207,11 +234,11 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 			elapsed := myt.Sub(start)
 			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.X, V.X, U)
 			Filex.WriteString(str)
-			delay = 25000 / V.X
+			delay = delayCalculation(b.errCF(V.X, Err.X))
 			time.Sleep(time.Duration(delay) * time.Microsecond)
-			if V.X > 0 {
+			if V.X > ZeroLimit {
 				Pos.X = Pos.X + 0.025
-			} else if V.X < 0 {
+			} else if V.X < -ZeroLimit {
 				Pos.X = Pos.X - 0.025
 			}
 		}
@@ -234,11 +261,11 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 			elapsed := myt.Sub(start)
 			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.Y, V.Y, U)
 			Filey.WriteString(str)
-			delay = 25000 / V.Y
+			delay = delayCalculation(b.errCF(V.Y, Err.Y))
 			time.Sleep(time.Duration(delay) * time.Microsecond)
-			if V.Y > 0 {
+			if V.Y > ZeroLimit {
 				Pos.Y = Pos.Y + 0.025
-			} else if V.Y < 0 {
+			} else if V.Y < -ZeroLimit {
 				Pos.Y = Pos.Y - 0.025
 			}
 		}
@@ -261,7 +288,7 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 			elapsed := myt.Sub(start)
 			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.Z, V.Z, U)
 			Filez.WriteString(str)
-			delay = 25000 / V.Z
+			delay = delayCalculation(b.errCF(V.Z, Err.Z))
 			time.Sleep(time.Duration(delay) * time.Microsecond)
 			if V.Z > 0 {
 				Pos.Z = Pos.Z + 0.025
@@ -280,6 +307,9 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 			V = b.DiffCal(U)
 			V.Unic()
 			V.SMultiplication(Feed)
+			tPos = b.Cal(U)
+			tmppos := tPos.Minus()
+			Err = Pos.Add(&tmppos)
 			time.Sleep(20 * time.Millisecond)
 		}
 		// when u == 1
