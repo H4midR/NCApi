@@ -18,6 +18,7 @@ type CPoints struct {
 	Req        string  `json:"req,omitempty"`
 	Points     []Point `json:"points,omitempty"`
 	Resolotion int     `json:"resolotion,omitempty"`
+	Rapidity   float64 `json:"rapidity,omitempty"`
 }
 
 // Bezier : bezier struct
@@ -109,10 +110,10 @@ func (b *Bezier) Init(ctx iris.Context) error {
 
 	}
 
-	l := b.LengthCal(10000) // what is the best resulution for calculation of curve length? maybe it's better to be dependent on it's value or curveture 1:1000000 , 2:1000
-	//log.Printf("B length is %f", l)
-	u := 0.1
-	log.Printf("ds/du %f @ %f & lenght is %f", b.DsPDu(u, 1000), u, l)
+	l := b.LengthCal(5000) // what is the best resulution for calculation of curve length? maybe it's better to be dependent on it's value or curveture 1:1000000 , 2:1000
+	log.Printf("B length is %f", l)
+	//u := 0.1
+	//log.Printf("ds/du %f @ %f & lenght is %f", b.DsPDu(u, 1000), u, l)
 
 	return nil
 }
@@ -167,9 +168,11 @@ func (b *Bezier) DsPDu(u float64, n uint32) float64 {
 }
 
 //Go : Go path
-func (b *Bezier) Go() {
+func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	start := time.Now()
-
+	Tstr := start.Format("2006_Jan__2_15_04")
+	Tlable := fmt.Sprintf("Samples/%s", Tstr)
+	os.MkdirAll(Tlable, 0755)
 	operationDone := make(chan bool)
 	var OD bool
 	var Feed float64
@@ -181,7 +184,7 @@ func (b *Bezier) Go() {
 		Z: 0,
 	}
 	U = b.U
-	Feed = 0.5
+	Feed = baseFeed
 	OD = false
 	V = b.DiffCal(U)
 	V.Unic()
@@ -192,7 +195,8 @@ func (b *Bezier) Go() {
 	go func() {
 		var myt time.Time
 		var delay float64
-		Filex, err := os.Create("Filex")
+		filex := fmt.Sprintf("%s/Filex", Tlable)
+		Filex, err := os.Create(filex)
 		check(err)
 		defer Filex.Close()
 		var str string
@@ -217,11 +221,12 @@ func (b *Bezier) Go() {
 	go func() {
 		var myt time.Time
 		var delay float64
-		Filey, err := os.Create("Filey")
+		filey := fmt.Sprintf("%s/Filey", Tlable)
+		Filey, err := os.Create(filey)
 		check(err)
 		defer Filey.Close()
 		var str string
-		Filey.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u")
+		Filey.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u\n")
 		for OD == false {
 
 			//log.Printf("Y %f , %f", V.Y, U)
@@ -243,7 +248,8 @@ func (b *Bezier) Go() {
 	go func() {
 		var myt time.Time
 		var delay float64
-		Filez, err := os.Create("Filez")
+		filez := fmt.Sprintf("%s/Filez", Tlable)
+		Filez, err := os.Create(filez)
 		check(err)
 		defer Filez.Close()
 		var str string
@@ -268,22 +274,53 @@ func (b *Bezier) Go() {
 
 	// Master Thread
 	go func() {
+		U = 0
 		for U <= 1 {
-			U = U + (Feed*0.001)/b.DsPDu(U, 800)
+			U = U + (Feed*0.02)/b.DsPDu(U, 1000)
 			V = b.DiffCal(U)
 			V.Unic()
 			V.SMultiplication(Feed)
-			time.Sleep(1 * time.Millisecond)
+			time.Sleep(20 * time.Millisecond)
 		}
 		// when u == 1
 		OD = true
 	}()
+	// Loger thread
+	go func() {
+		t := int((b.Length * 1000) / (baseFeed * float64(resolotion)))
+		// type data struct {
+		// 	Points []Point `json:"points"`
+		// }
+		// CP := data{}
+		ctx.WriteString("{\"points\" : [")
+		ctx.Writef("[%f,%f,%f,%f]", U, Pos.X, Pos.Y, Pos.Z)
+		//CP.Points[i] = Pos.Clone()
+		time.Sleep(time.Duration(t) * time.Millisecond)
+		// i := 0
+		for OD == false {
+			ctx.Writef(",[%f,%f,%f,%f]", U, Pos.X, Pos.Y, Pos.Z)
+			//CP.Points[i] = Pos.Clone()
+			time.Sleep(time.Duration(t) * time.Millisecond)
+
+		}
+		ctx.WriteString("]}")
+		// str, _ := json.Marshal(CP)
+		// ctx.Write(str)
+		operationDone <- true
+	}()
+	<-operationDone
 	<-operationDone
 	<-operationDone
 	<-operationDone
 
 	t := time.Now()
 	elapsed := t.Sub(start)
+	//bcFile := fmt.Sprintf("%s/BezierCurve", Tlable)
+	bcFile, _ := os.Create(fmt.Sprintf("%s/BezierCurve", Tlable))
+	bcstr, _ := json.Marshal(b)
+	bcFile.Write(bcstr)
+	defer bcFile.Close()
+
 	log.Printf("all jobs Done it takes %s", elapsed.String())
 	log.Printf("the last Point is : ( %f , %f , %f )", Pos.X, Pos.Y, Pos.Z)
 }

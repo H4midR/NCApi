@@ -25,7 +25,7 @@ func (c *NcController) Get(ctx iris.Context) {
 	//v := b.DiffCal(1)
 	//cp := b.Cal(0.5)
 	//ctx.Write(v.JSON())
-	b.Go()
+	b.Go(1, 100, ctx)
 	//ctx.Writef("<br>")
 	//ctx.Write(cp.JSON())
 	//bp := datamodels.BernsteinPolynomial{N: 3, I: 0}
@@ -98,9 +98,9 @@ func (c *NcController) PostGo(ctx iris.Context) {
 	if err != nil {
 		return
 	}
-	Bezier.Go()
+	Bezier.Go(cps.Rapidity, cps.Resolotion, ctx)
 
-	ctx.WriteString("done")
+	//ctx.WriteString("done")
 }
 
 func (c *NcController) PostTest(ctx iris.Context) {
