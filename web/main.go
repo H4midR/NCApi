@@ -42,7 +42,7 @@ func main() {
 	// and log the requests to the terminal.
 	app.Use(recover.New())
 	app.Use(logger.New())
-
+	app.StaticWeb("/static", "./web/static")
 	app.RegisterView(iris.HTML("./web/views", ".html"))
 
 	crs := cors.New(cors.Options{
@@ -77,8 +77,8 @@ func main() {
 	// same as app.Handle("GET", "/ping", [...])
 	// Method:   GET
 	// Resource: http://localhost:8080/ping
-	app.Get("/ping", func(ctx iris.Context) {
-		ctx.WriteString("pong")
+	app.Get("/", func(ctx iris.Context) {
+		ctx.View("index.html")
 	})
 
 	// Method:   GET
