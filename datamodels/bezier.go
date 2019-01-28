@@ -12,7 +12,7 @@ import (
 	"github.com/kataras/iris"
 )
 
-const ZeroLimit = 0.0001
+const ZeroLimit = 0.025
 
 // CPoints : cpoints
 type CPoints struct {
@@ -32,6 +32,7 @@ type Bezier struct {
 	U      float64               `json:"u"`
 	N      uint64                `json:"n"`
 	Length float64               `json:"length"`
+	//ErrCof float64               `json:"errCof"`
 }
 
 //BernsteinPolynomial : bezier basic functions
@@ -68,12 +69,12 @@ func check(e error) {
 }
 
 //delayCalculation : calculate the delay time with limitation
-func delayCalculation(val float64) float64 {
-	return 2500 / val
-	if val < ZeroLimit && val > -ZeroLimit {
-		return 300
+func delayCalculation(val float64) (float64, bool) {
+	//return 0, 2500 / val
+	if val > -1*ZeroLimit && val < ZeroLimit {
+		return 100000, false
 	} else {
-		return 2500 / val
+		return 2500 / val, true
 	}
 }
 
@@ -181,7 +182,7 @@ func (b *Bezier) DsPDu(u float64, n uint32) float64 {
 
 //errCF : error coeficent calculation factor for Velocity
 func (b *Bezier) errCF(val float64, err float64) float64 {
-	return val - 0.2*err
+	return val * (1 + 50*err)
 }
 
 //Go : Go path
@@ -222,24 +223,27 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	go func() {
 		var myt time.Time
 		var delay float64
-		filex := fmt.Sprintf("%s/Filex", Tlable)
+		var mypass bool
+		filex := fmt.Sprintf("%s/Filex.txt", Tlable)
 		Filex, err := os.Create(filex)
 		check(err)
 		defer Filex.Close()
 		var str string
-		Filex.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u")
+		Filex.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u , Err\n")
 		for OD == false {
 			//log.Printf("X %f , %f", V.X, U)
-			myt = time.Now()
-			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.X, V.X, U)
-			Filex.WriteString(str)
-			delay = delayCalculation(b.errCF(V.X, Err.X))
+			delay, mypass = delayCalculation(b.errCF(V.X, Err.X))
 			time.Sleep(time.Duration(delay) * time.Microsecond)
-			if V.X > ZeroLimit {
-				Pos.X = Pos.X + 0.025
-			} else if V.X < -ZeroLimit {
-				Pos.X = Pos.X - 0.025
+			if mypass == true {
+				myt = time.Now()
+				elapsed := myt.Sub(start)
+				str = fmt.Sprintf("%f , %f , %f , %f , %f\n", elapsed.Seconds(), Pos.X, V.X, U, Err.X)
+				Filex.WriteString(str)
+				if V.X > 0 {
+					Pos.X = Pos.X + 0.0025
+				} else if V.X < 0 {
+					Pos.X = Pos.X - 0.0025
+				}
 			}
 		}
 		operationDone <- true
@@ -248,25 +252,28 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	go func() {
 		var myt time.Time
 		var delay float64
-		filey := fmt.Sprintf("%s/Filey", Tlable)
+		var mypass bool
+		filey := fmt.Sprintf("%s/Filey.txt", Tlable)
 		Filey, err := os.Create(filey)
 		check(err)
 		defer Filey.Close()
 		var str string
-		Filey.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u\n")
+		Filey.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u , Err\n")
 		for OD == false {
 
 			//log.Printf("Y %f , %f", V.Y, U)
-			myt = time.Now()
-			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.Y, V.Y, U)
-			Filey.WriteString(str)
-			delay = delayCalculation(b.errCF(V.Y, Err.Y))
+			delay, mypass = delayCalculation(b.errCF(V.Y, Err.Y))
 			time.Sleep(time.Duration(delay) * time.Microsecond)
-			if V.Y > ZeroLimit {
-				Pos.Y = Pos.Y + 0.025
-			} else if V.Y < -ZeroLimit {
-				Pos.Y = Pos.Y - 0.025
+			if mypass == true {
+				myt = time.Now()
+				elapsed := myt.Sub(start)
+				str = fmt.Sprintf("%f , %f , %f , %f , %f\n", elapsed.Seconds(), Pos.Y, V.Y, U, Err.Y)
+				Filey.WriteString(str)
+				if V.Y > 0 {
+					Pos.Y = Pos.Y + 0.0025
+				} else if V.Y < 0 {
+					Pos.Y = Pos.Y - 0.0025
+				}
 			}
 		}
 		operationDone <- true
@@ -275,26 +282,29 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	go func() {
 		var myt time.Time
 		var delay float64
-		filez := fmt.Sprintf("%s/Filez", Tlable)
+		var mypass bool
+		filez := fmt.Sprintf("%s/Filez.txt", Tlable)
 		Filez, err := os.Create(filez)
 		check(err)
 		defer Filez.Close()
 		var str string
-		Filez.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u")
+		Filez.WriteString("time(s) , Pos(mm) , Speed(mm/s) , u , Err\n")
 		for OD == false {
-
-			//log.Printf("Z %f , %f", V.Z, U)
-			myt = time.Now()
-			elapsed := myt.Sub(start)
-			str = fmt.Sprintf("%f , %f , %f , %f\n", elapsed.Seconds(), Pos.Z, V.Z, U)
-			Filez.WriteString(str)
-			delay = delayCalculation(b.errCF(V.Z, Err.Z))
+			//log.Printf("Y %f , %f", V.Y, U)
+			delay, mypass = delayCalculation(b.errCF(V.Z, Err.Z))
 			time.Sleep(time.Duration(delay) * time.Microsecond)
-			if V.Z > 0 {
-				Pos.Z = Pos.Z + 0.025
-			} else if V.Z < 0 {
-				Pos.Z = Pos.Z - 0.025
+			if mypass == true {
+				myt = time.Now()
+				elapsed := myt.Sub(start)
+				str = fmt.Sprintf("%f , %f , %f , %f , %f\n", elapsed.Seconds(), Pos.Z, V.Z, U, Err.Z)
+				Filez.WriteString(str)
+				if V.Z > 0 {
+					Pos.Z = Pos.Z + 0.0025
+				} else if V.Z < 0 {
+					Pos.Z = Pos.Z - 0.0025
+				}
 			}
+
 		}
 		operationDone <- true
 	}()
@@ -303,21 +313,21 @@ func (b *Bezier) Go(baseFeed float64, resolotion int, ctx iris.Context) {
 	go func() {
 		U = 0
 		for U <= 1 {
-			U = U + (Feed*0.02)/b.DsPDu(U, 1000)
+			U = U + (Feed*0.001)/b.DsPDu(U, 1000)
 			V = b.DiffCal(U)
 			V.Unic()
 			V.SMultiplication(Feed)
 			tPos = b.Cal(U)
-			tmppos := tPos.Minus()
-			Err = Pos.Add(&tmppos)
-			time.Sleep(20 * time.Millisecond)
+			tmppos := Pos.Minus()
+			Err = tPos.Add(&tmppos)
+			time.Sleep(1 * time.Millisecond)
 		}
 		// when u == 1
 		OD = true
 	}()
 	// Loger thread
 	go func() {
-		t := int((b.Length * 1000) / (baseFeed * float64(resolotion)))
+		t := int((b.Length * 2000) / (baseFeed * float64(resolotion)))
 		// type data struct {
 		// 	Points []Point `json:"points"`
 		// }
